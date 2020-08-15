@@ -52,6 +52,8 @@ interface BlockConstructorOptions {
    * Editor's API methods
    */
   api: ApiModule;
+
+  timestamp?: string;
 }
 
 /**
@@ -204,7 +206,14 @@ export default class Block {
    * @param {ToolSettings} options.settings - default tool's config
    * @param {ApiModule} options.api - Editor API module for pass it to the Block Tunes
    */
-  constructor({ name, data, Tool, settings, api }: BlockConstructorOptions) {
+  constructor({
+    name,
+    data,
+    Tool,
+    settings,
+    api,
+    timestamp,
+  }: BlockConstructorOptions) {
     this.name = name;
     this.class = Tool;
     this.settings = settings;
@@ -228,7 +237,11 @@ export default class Block {
     this.tunes = this.makeTunes();
 
     // s-rocket change
-    this.timestamp = new Date().toISOString();
+    if (timestamp) {
+      this.timestamp = timestamp;
+    } else {
+      this.timestamp = new Date().toISOString();
+    }
   }
 
   /**
