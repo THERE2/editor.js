@@ -6,12 +6,16 @@
  *
  * @version 2.0.0
  */
-import Block, { BlockToolAPI } from '../block';
-import Module from '../__module';
-import $ from '../dom';
-import * as _ from '../utils';
-import Blocks from '../blocks';
-import { BlockToolConstructable, BlockToolData, PasteEvent } from '../../../types';
+import Block, { BlockToolAPI } from "../block";
+import Module from "../__module";
+import $ from "../dom";
+import * as _ from "../utils";
+import Blocks from "../blocks";
+import {
+  BlockToolConstructable,
+  BlockToolData,
+  PasteEvent,
+} from "../../../types";
 
 /**
  * @typedef {BlockManager} BlockManager
@@ -78,7 +82,7 @@ export default class BlockManager extends Module {
    * @returns {Block|null}
    */
   public get nextBlock(): Block {
-    const isLastBlock = this.currentBlockIndex === (this._blocks.length - 1);
+    const isLastBlock = this.currentBlockIndex === this._blocks.length - 1;
 
     if (isLastBlock) {
       return null;
@@ -104,7 +108,9 @@ export default class BlockManager extends Module {
    * @returns {Block | undefined}
    */
   public get previousContentfulBlock(): Block {
-    const previousBlocks = this.blocks.slice(0, this.currentBlockIndex).reverse();
+    const previousBlocks = this.blocks
+      .slice(0, this.currentBlockIndex)
+      .reverse();
 
     return previousBlocks.find((block) => !!block.inputs.length);
   }
@@ -187,17 +193,13 @@ export default class BlockManager extends Module {
     });
 
     /** Copy event */
-    Listeners.on(
-      document,
-      'copy',
-      (e: ClipboardEvent) => BlockEvents.handleCommandC(e)
+    Listeners.on(document, "copy", (e: ClipboardEvent) =>
+      BlockEvents.handleCommandC(e)
     );
 
     /** Copy and cut */
-    Listeners.on(
-      document,
-      'cut',
-      (e: ClipboardEvent) => BlockEvents.handleCommandX(e)
+    Listeners.on(document, "cut", (e: ClipboardEvent) =>
+      BlockEvents.handleCommandX(e)
     );
   }
 
@@ -210,7 +212,13 @@ export default class BlockManager extends Module {
    *
    * @returns {Block}
    */
-  public composeBlock({ tool, data = {} }: {tool: string; data?: BlockToolData}): Block {
+  public composeBlock({
+    tool,
+    data = {},
+  }: {
+    tool: string;
+    data?: BlockToolData;
+  }): Block {
     const settings = this.Editor.Tools.getToolSettings(tool);
     const Tool = this.Editor.Tools.available[tool] as BlockToolConstructable;
     const block = new Block({
@@ -219,6 +227,7 @@ export default class BlockManager extends Module {
       Tool,
       settings,
       api: this.Editor.API,
+      timestamp: data.timestamp,
     });
 
     this.bindEvents(block);
@@ -282,10 +291,7 @@ export default class BlockManager extends Module {
    *
    * @returns {Block}
    */
-  public replace({
-    tool = this.config.initialBlock,
-    data = {},
-  }): Block {
+  public replace({ tool = this.config.initialBlock, data = {} }): Block {
     return this.insert({
       tool,
       data,
@@ -314,7 +320,7 @@ export default class BlockManager extends Module {
     try {
       block.call(BlockToolAPI.ON_PASTE, pasteEvent);
     } catch (e) {
-      _.log(`${toolName}: onPaste callback call is failed`, 'error', e);
+      _.log(`${toolName}: onPaste callback call is failed`, "error", e);
     }
 
     return block;
@@ -369,7 +375,10 @@ export default class BlockManager extends Module {
    *
    * @returns {Promise} - the sequence that can be continued
    */
-  public async mergeBlocks(targetBlock: Block, blockToMerge: Block): Promise<void> {
+  public async mergeBlocks(
+    targetBlock: Block,
+    blockToMerge: Block
+  ): Promise<void> {
     const blockToMergeIndex = this._blocks.indexOf(blockToMerge);
 
     if (blockToMerge.isEmpty) {
@@ -397,7 +406,7 @@ export default class BlockManager extends Module {
      * If index is not passed and there is no block selected, show a warning
      */
     if (!this.validateIndex(index)) {
-      throw new Error('Can\'t find a Block to remove');
+      throw new Error("Can't find a Block to remove");
     }
 
     this._blocks.remove(index);
@@ -465,7 +474,7 @@ export default class BlockManager extends Module {
    */
   public split(): Block {
     const extractedFragment = this.Editor.Caret.extractFragmentFromCaretPosition();
-    const wrapper = $.make('div');
+    const wrapper = $.make("div");
 
     wrapper.appendChild(extractedFragment as DocumentFragment);
 
@@ -473,7 +482,7 @@ export default class BlockManager extends Module {
      * @todo make object in accordance with Tool
      */
     const data = {
-      text: $.isEmpty(wrapper) ? '' : wrapper.innerHTML,
+      text: $.isEmpty(wrapper) ? "" : wrapper.innerHTML,
     };
 
     /**
@@ -508,8 +517,8 @@ export default class BlockManager extends Module {
     }
 
     const nodes = this._blocks.nodes,
-        firstLevelBlock = element.closest(`.${Block.CSS.wrapper}`),
-        index = nodes.indexOf(firstLevelBlock as HTMLElement);
+      firstLevelBlock = element.closest(`.${Block.CSS.wrapper}`),
+      index = nodes.indexOf(firstLevelBlock as HTMLElement);
 
     if (index >= 0) {
       return this._blocks[index];
@@ -558,7 +567,9 @@ export default class BlockManager extends Module {
       childNode = childNode.parentNode;
     }
 
-    const parentFirstLevelBlock = (childNode as HTMLElement).closest(`.${Block.CSS.wrapper}`);
+    const parentFirstLevelBlock = (childNode as HTMLElement).closest(
+      `.${Block.CSS.wrapper}`
+    );
 
     if (parentFirstLevelBlock) {
       /**
@@ -566,11 +577,13 @@ export default class BlockManager extends Module {
        *
        * @type {number}
        */
-      this.currentBlockIndex = this._blocks.nodes.indexOf(parentFirstLevelBlock as HTMLElement);
+      this.currentBlockIndex = this._blocks.nodes.indexOf(
+        parentFirstLevelBlock as HTMLElement
+      );
 
       return this.currentBlock;
     } else {
-      throw new Error('Can not find a Block from this child Node');
+      throw new Error("Can not find a Block from this child Node");
     }
   }
 
@@ -589,7 +602,9 @@ export default class BlockManager extends Module {
       childNode = childNode.parentNode;
     }
 
-    const firstLevelBlock = (childNode as HTMLElement).closest(`.${Block.CSS.wrapper}`);
+    const firstLevelBlock = (childNode as HTMLElement).closest(
+      `.${Block.CSS.wrapper}`
+    );
 
     return this.blocks.find((block) => block.holder === firstLevelBlock);
   }
@@ -619,13 +634,16 @@ export default class BlockManager extends Module {
   public move(toIndex, fromIndex = this.currentBlockIndex): void {
     // make sure indexes are valid and within a valid range
     if (isNaN(toIndex) || isNaN(fromIndex)) {
-      _.log(`Warning during 'move' call: incorrect indices provided.`, 'warn');
+      _.log(`Warning during 'move' call: incorrect indices provided.`, "warn");
 
       return;
     }
 
     if (!this.validateIndex(toIndex) || !this.validateIndex(fromIndex)) {
-      _.log(`Warning during 'move' call: indices cannot be lower than 0 or greater than the amount of blocks.`, 'warn');
+      _.log(
+        `Warning during 'move' call: indices cannot be lower than 0 or greater than the amount of blocks.`,
+        "warn"
+      );
 
       return;
     }
@@ -675,11 +693,22 @@ export default class BlockManager extends Module {
   private bindEvents(block: Block): void {
     const { BlockEvents, Listeners } = this.Editor;
 
-    Listeners.on(block.holder, 'keydown', (event) => BlockEvents.keydown(event as KeyboardEvent), false);
-    Listeners.on(block.holder, 'mousedown', (event: MouseEvent) => BlockEvents.mouseDown(event));
-    Listeners.on(block.holder, 'keyup', (event) => BlockEvents.keyup(event));
-    Listeners.on(block.holder, 'dragover', (event) => BlockEvents.dragOver(event as DragEvent));
-    Listeners.on(block.holder, 'dragleave', (event) => BlockEvents.dragLeave(event as DragEvent));
+    Listeners.on(
+      block.holder,
+      "keydown",
+      (event) => BlockEvents.keydown(event as KeyboardEvent),
+      false
+    );
+    Listeners.on(block.holder, "mousedown", (event: MouseEvent) =>
+      BlockEvents.mouseDown(event)
+    );
+    Listeners.on(block.holder, "keyup", (event) => BlockEvents.keyup(event));
+    Listeners.on(block.holder, "dragover", (event) =>
+      BlockEvents.dragOver(event as DragEvent)
+    );
+    Listeners.on(block.holder, "dragleave", (event) =>
+      BlockEvents.dragLeave(event as DragEvent)
+    );
   }
 
   /**
