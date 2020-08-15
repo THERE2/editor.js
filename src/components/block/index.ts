@@ -1,3 +1,4 @@
+/* eslint indent:0 */
 import {
   BlockAPI as BlockAPIInterface,
   BlockTool,
@@ -7,21 +8,21 @@ import {
   BlockTuneConstructable,
   SanitizerConfig,
   ToolConfig,
-  ToolSettings
-} from '../../../types';
+  ToolSettings,
+} from "../../../types";
 
-import { SavedData } from '../../types-internal/block-data';
-import $ from '../dom';
-import * as _ from '../utils';
-import ApiModule from '../modules/api';
-import SelectionUtils from '../selection';
-import BlockAPI from './api';
-import { ToolType } from '../modules/tools';
+import { SavedData } from "../../types-internal/block-data";
+import $ from "../dom";
+import * as _ from "../utils";
+import ApiModule from "../modules/api";
+import SelectionUtils from "../selection";
+import BlockAPI from "./api";
+import { ToolType } from "../modules/tools";
 
 /** Import default tunes */
-import MoveUpTune from '../block-tunes/block-tune-move-up';
-import DeleteTune from '../block-tunes/block-tune-delete';
-import MoveDownTune from '../block-tunes/block-tune-move-down';
+import MoveUpTune from "../block-tunes/block-tune-move-up";
+import DeleteTune from "../block-tunes/block-tune-delete";
+import MoveDownTune from "../block-tunes/block-tune-move-down";
 
 /**
  * Interface describes Block class constructor argument
@@ -70,12 +71,12 @@ export enum BlockToolAPI {
    * @todo remove method in 3.0.0
    * @deprecated — use 'rendered' hook instead
    */
-  APPEND_CALLBACK = 'appendCallback',
-  RENDERED = 'rendered',
-  MOVED = 'moved',
-  UPDATED = 'updated',
-  REMOVED = 'removed',
-  ON_PASTE = 'onPaste',
+  APPEND_CALLBACK = "appendCallback",
+  RENDERED = "rendered",
+  MOVED = "moved",
+  UPDATED = "updated",
+  REMOVED = "removed",
+  ON_PASTE = "onPaste",
 }
 
 /**
@@ -91,14 +92,14 @@ export default class Block {
    *
    * @returns {{wrapper: string, content: string}}
    */
-  public static get CSS(): {[name: string]: string} {
+  public static get CSS(): { [name: string]: string } {
     return {
-      wrapper: 'ce-block',
-      wrapperStretched: 'ce-block--stretched',
-      content: 'ce-block__content',
-      focused: 'ce-block--focused',
-      selected: 'ce-block--selected',
-      dropTarget: 'ce-block--drop-target',
+      wrapper: "ce-block",
+      wrapperStretched: "ce-block--stretched",
+      content: "ce-block__content",
+      focused: "ce-block--focused",
+      selected: "ce-block--selected",
+      dropTarget: "ce-block--drop-target",
     };
   }
 
@@ -136,6 +137,9 @@ export default class Block {
    * Tool's user configuration
    */
   public readonly config: ToolConfig;
+
+  // s-rocket change
+  public timestamp: string;
 
   /**
    * Cached inputs
@@ -200,13 +204,7 @@ export default class Block {
    * @param {ToolSettings} options.settings - default tool's config
    * @param {ApiModule} options.api - Editor API module for pass it to the Block Tunes
    */
-  constructor({
-    name,
-    data,
-    Tool,
-    settings,
-    api,
-  }: BlockConstructorOptions) {
+  constructor({ name, data, Tool, settings, api }: BlockConstructorOptions) {
     this.name = name;
     this.class = Tool;
     this.settings = settings;
@@ -228,6 +226,9 @@ export default class Block {
      * @type {BlockTune[]}
      */
     this.tunes = this.makeTunes();
+
+    // s-rocket change
+    this.timestamp = new Date().toISOString();
   }
 
   /**
@@ -275,7 +276,9 @@ export default class Block {
    * @param {HTMLElement | Node} element - HTML Element to set as current input
    */
   public set currentInput(element: HTMLElement | Node) {
-    const index = this.inputs.findIndex((input) => input === element || input.contains(element));
+    const index = this.inputs.findIndex(
+      (input) => input === element || input.contains(element)
+    );
 
     if (index !== -1) {
       this.inputIndex = index;
@@ -351,7 +354,7 @@ export default class Block {
    * @returns {boolean}
    */
   public mergeable(): boolean {
-    return typeof this.tool.merge === 'function';
+    return typeof this.tool.merge === "function";
   }
 
   /**
@@ -378,17 +381,17 @@ export default class Block {
      * @type {string[]}
      */
     const mediaTags = [
-      'img',
-      'iframe',
-      'video',
-      'audio',
-      'source',
-      'input',
-      'textarea',
-      'twitterwidget',
+      "img",
+      "iframe",
+      "video",
+      "audio",
+      "source",
+      "input",
+      "textarea",
+      "twitterwidget",
     ];
 
-    return !!this.holder.querySelector(mediaTags.join(','));
+    return !!this.holder.querySelector(mediaTags.join(","));
   }
 
   /**
@@ -463,14 +466,20 @@ export default class Block {
    * @returns {HTMLElement}
    */
   public get pluginsContent(): HTMLElement {
-    const blockContentNodes = this.holder.querySelector(`.${Block.CSS.content}`);
+    const blockContentNodes = this.holder.querySelector(
+      `.${Block.CSS.content}`
+    );
 
     if (blockContentNodes && blockContentNodes.childNodes.length) {
       /**
        * Editors Block content can contain different Nodes from extensions
        * We use DOM isExtensionNode to ignore such Nodes and return first Block that does not match filtering list
        */
-      for (let child = blockContentNodes.childNodes.length - 1; child >= 0; child--) {
+      for (
+        let child = blockContentNodes.childNodes.length - 1;
+        child >= 0;
+        child--
+      ) {
         const contentNode = blockContentNodes.childNodes[child];
 
         if (!$.isExtensionNode(contentNode)) {
@@ -497,9 +506,9 @@ export default class Block {
     if (this.tool[methodName] && this.tool[methodName] instanceof Function) {
       if (methodName === BlockToolAPI.APPEND_CALLBACK) {
         _.log(
-          '`appendCallback` hook is deprecated and will be removed in the next major release. ' +
-          'Use `rendered` hook instead',
-          'warn'
+          "`appendCallback` hook is deprecated and will be removed in the next major release. " +
+            "Use `rendered` hook instead",
+          "warn"
         );
       }
 
@@ -507,7 +516,7 @@ export default class Block {
         // eslint-disable-next-line no-useless-call
         this.tool[methodName].call(this.tool, params);
       } catch (e) {
-        _.log(`Error during '${methodName}' call: ${e.message}`, 'error');
+        _.log(`Error during '${methodName}' call: ${e.message}`, "error");
       }
     }
   }
@@ -527,8 +536,10 @@ export default class Block {
    *
    * @returns {object}
    */
-  public async save(): Promise<void|SavedData> {
-    const extractedBlock = await this.tool.save(this.pluginsContent as HTMLElement);
+  public async save(): Promise<void | SavedData> {
+    const extractedBlock = await this.tool.save(
+      this.pluginsContent as HTMLElement
+    );
 
     /**
      * Measuring execution time
@@ -540,6 +551,7 @@ export default class Block {
       .then((finishedExtraction) => {
         /** measure promise execution */
         measuringEnd = window.performance.now();
+        finishedExtraction.timestamp = this.timestamp;
 
         return {
           tool: this.name,
@@ -548,7 +560,11 @@ export default class Block {
         };
       })
       .catch((error) => {
-        _.log(`Saving proccess for ${this.name} tool failed due to the ${error}`, 'log', 'red');
+        _.log(
+          `Saving proccess for ${this.name} tool failed due to the ${error}`,
+          "log",
+          "red"
+        );
       });
   }
 
@@ -580,26 +596,28 @@ export default class Block {
   public makeTunes(): BlockTune[] {
     const tunesList = [
       {
-        name: 'moveUp',
+        name: "moveUp",
         Tune: MoveUpTune,
       },
       {
-        name: 'delete',
+        name: "delete",
         Tune: DeleteTune,
       },
       {
-        name: 'moveDown',
+        name: "moveDown",
         Tune: MoveDownTune,
       },
     ];
 
     // Pluck tunes list and return tune instances with passed Editor API and settings
-    return tunesList.map(({ name, Tune }: {name: string; Tune: BlockTuneConstructable}) => {
-      return new Tune({
-        api: this.api.getMethodsForTool(name, ToolType.Tune),
-        settings: this.config,
-      });
-    });
+    return tunesList.map(
+      ({ name, Tune }: { name: string; Tune: BlockTuneConstructable }) => {
+        return new Tune({
+          api: this.api.getMethodsForTool(name, ToolType.Tune),
+          settings: this.config,
+        });
+      }
+    );
   }
 
   /**
@@ -631,15 +649,12 @@ export default class Block {
     /**
      * Observe DOM mutations to update Block inputs
      */
-    this.mutationObserver.observe(
-      this.holder.firstElementChild,
-      {
-        childList: true,
-        subtree: true,
-        characterData: true,
-        attributes: true,
-      }
-    );
+    this.mutationObserver.observe(this.holder.firstElementChild, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+    });
   }
 
   /**
@@ -655,9 +670,9 @@ export default class Block {
    * @returns {HTMLDivElement}
    */
   private compose(): HTMLDivElement {
-    const wrapper = $.make('div', Block.CSS.wrapper) as HTMLDivElement,
-        contentNode = $.make('div', Block.CSS.content),
-        pluginsContent = this.tool.render();
+    const wrapper = $.make("div", Block.CSS.wrapper) as HTMLDivElement,
+      contentNode = $.make("div", Block.CSS.content),
+      pluginsContent = this.tool.render();
 
     contentNode.appendChild(pluginsContent);
     wrapper.appendChild(contentNode);
