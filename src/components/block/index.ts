@@ -230,18 +230,20 @@ export default class Block {
       block: this.blockAPI,
     });
 
-    this.holder = this.compose();
-    /**
-     * @type {BlockTune[]}
-     */
-    this.tunes = this.makeTunes();
-
-    // s-rocket change
+    // s-rocket change start //
+    // need to set timestamp before calling compose
     if (timestamp) {
       this.timestamp = timestamp;
     } else {
       this.timestamp = new Date().toISOString();
     }
+    // s-rocket change end //
+
+    this.holder = this.compose();
+    /**
+     * @type {BlockTune[]}
+     */
+    this.tunes = this.makeTunes();
   }
 
   /**
@@ -683,8 +685,11 @@ export default class Block {
    * @returns {HTMLDivElement}
    */
   private compose(): HTMLDivElement {
+    // s-rocket change. set timestamp to id tag
     const wrapper = $.make("div", Block.CSS.wrapper) as HTMLDivElement,
-      contentNode = $.make("div", Block.CSS.content),
+      contentNode = $.make("div", Block.CSS.content, {
+        id: this.timestamp,
+      }),
       pluginsContent = this.tool.render();
 
     contentNode.appendChild(pluginsContent);
