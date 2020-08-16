@@ -1,9 +1,9 @@
-import Module from '../../__module';
+import Module from "../../__module";
 
-import { BlockAPI as BlockAPIInterface, Blocks } from '../../../../types/api';
-import { BlockToolData, OutputData, ToolConfig } from '../../../../types';
-import * as _ from './../../utils';
-import BlockAPI from '../../block/api';
+import { BlockAPI as BlockAPIInterface, Blocks } from "../../../../types/api";
+import { BlockToolData, OutputData, ToolConfig } from "../../../../types";
+import * as _ from "./../../utils";
+import BlockAPI from "../../block/api";
 
 /**
  * @class BlocksAPI
@@ -19,14 +19,21 @@ export default class BlocksAPI extends Module {
     return {
       clear: (): void => this.clear(),
       render: (data: OutputData): Promise<void> => this.render(data),
-      renderFromHTML: (data: string): Promise<void> => this.renderFromHTML(data),
+      renderFromHTML: (data: string): Promise<void> =>
+        this.renderFromHTML(data),
       delete: (index?: number): void => this.delete(index),
-      swap: (fromIndex: number, toIndex: number): void => this.swap(fromIndex, toIndex),
-      move: (toIndex: number, fromIndex?: number): void => this.move(toIndex, fromIndex),
-      getBlockByIndex: (index: number): BlockAPIInterface => this.getBlockByIndex(index),
+      deleteWithoutCaretSet: (index?: number): void =>
+        this.deleteWithoutCaretSet(index),
+      swap: (fromIndex: number, toIndex: number): void =>
+        this.swap(fromIndex, toIndex),
+      move: (toIndex: number, fromIndex?: number): void =>
+        this.move(toIndex, fromIndex),
+      getBlockByIndex: (index: number): BlockAPIInterface =>
+        this.getBlockByIndex(index),
       getCurrentBlockIndex: (): number => this.getCurrentBlockIndex(),
       getBlocksCount: (): number => this.getBlocksCount(),
-      stretchBlock: (index: number, status = true): void => this.stretchBlock(index, status),
+      stretchBlock: (index: number, status = true): void =>
+        this.stretchBlock(index, status),
       insertNewBlock: (): void => this.insertNewBlock(),
       insert: this.insert,
     };
@@ -72,9 +79,9 @@ export default class BlocksAPI extends Module {
    */
   public swap(fromIndex: number, toIndex: number): void {
     _.log(
-      '`blocks.swap()` method is deprecated and will be removed in the next major release. ' +
-      'Use `block.move()` method instead',
-      'info'
+      "`blocks.swap()` method is deprecated and will be removed in the next major release. " +
+        "Use `block.move()` method instead",
+      "info"
     );
 
     this.Editor.BlockManager.swap(fromIndex, toIndex);
@@ -111,7 +118,7 @@ export default class BlocksAPI extends Module {
     try {
       this.Editor.BlockManager.removeBlock(blockIndex);
     } catch (e) {
-      _.logLabeled(e, 'warn');
+      _.logLabeled(e, "warn");
 
       return;
     }
@@ -127,7 +134,36 @@ export default class BlocksAPI extends Module {
     /**
      * After Block deletion currentBlock is updated
      */
-    this.Editor.Caret.setToBlock(this.Editor.BlockManager.currentBlock, this.Editor.Caret.positions.END);
+    this.Editor.Caret.setToBlock(
+      this.Editor.BlockManager.currentBlock,
+      this.Editor.Caret.positions.END
+    );
+
+    this.Editor.Toolbar.close();
+  }
+
+  /**
+   * s-rocket change
+   * delete index block but without changing caret position
+   *
+   * @param blockIndex - index of removing block
+   */
+  public deleteWithoutCaretSet(blockIndex?: number): void {
+    try {
+      this.Editor.BlockManager.removeBlock(blockIndex);
+    } catch (e) {
+      _.logLabeled(e, "warn");
+
+      return;
+    }
+
+    /**
+     * in case of last block deletion
+     * Insert new initial empty block
+     */
+    if (this.Editor.BlockManager.blocks.length === 0) {
+      this.Editor.BlockManager.insert();
+    }
 
     this.Editor.Toolbar.close();
   }
@@ -173,9 +209,9 @@ export default class BlocksAPI extends Module {
    */
   public stretchBlock(index: number, status = true): void {
     _.log(
-      '`blocks.stretchBlock()` method is deprecated and will be removed in the next major release. ' +
-      'Use BlockAPI interface instead',
-      'warn'
+      "`blocks.stretchBlock()` method is deprecated and will be removed in the next major release. " +
+        "Use BlockAPI interface instead",
+      "warn"
     );
 
     const block = this.Editor.BlockManager.getBlockByIndex(index);
@@ -209,7 +245,7 @@ export default class BlocksAPI extends Module {
       index,
       needToFocus,
     });
-  }
+  };
 
   /**
    * Insert new Block
@@ -220,8 +256,11 @@ export default class BlocksAPI extends Module {
    * @deprecated with insert() method
    */
   public insertNewBlock(): void {
-    _.log('Method blocks.insertNewBlock() is deprecated and it will be removed in the next major release. ' +
-      'Use blocks.insert() instead.', 'warn');
+    _.log(
+      "Method blocks.insertNewBlock() is deprecated and it will be removed in the next major release. " +
+        "Use blocks.insert() instead.",
+      "warn"
+    );
     this.insert();
   }
 }

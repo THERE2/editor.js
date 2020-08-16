@@ -19,8 +19,17 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
+    <script>
+      function onClickDelete() {
+        setTimeout(() => {
+          console.log("delete called");
+          editor.blocks.deleteWithoutCaretSet(0);
+        }, 1000);
+      }
+    </script>
   </head>
   <body>
+    <button onClick="onClickDelete()">delete</button>
     <div class="ce-example">
       <div class="ce-example__header">
         <a class="ce-example__header-logo" href="https://codex.so/editor"

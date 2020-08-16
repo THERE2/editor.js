@@ -1,6 +1,6 @@
-import {OutputData} from '../data-formats/output-data';
-import {BlockToolData, ToolConfig} from '../tools';
-import {BlockAPI} from './block';
+import { OutputData } from "../data-formats/output-data";
+import { BlockToolData, ToolConfig } from "../tools";
+import { BlockAPI } from "./block";
 
 /**
  * Describes methods to manipulate with Editor`s blocks
@@ -30,6 +30,12 @@ export interface Blocks {
    * @param {number} index - index of a block to delete
    */
   delete(index?: number): void;
+
+  /**
+   * S-rocket add: delete block without changing caret
+   * @param {number} index - index of a block to delete
+   */
+  deleteWithoutCaretSet(index?: number): void;
 
   /**
    * Swaps two Blocks
@@ -95,7 +101,6 @@ export interface Blocks {
     data?: BlockToolData,
     config?: ToolConfig,
     index?: number,
-    needToFocus?: boolean,
+    needToFocus?: boolean
   ): void;
-
 }
